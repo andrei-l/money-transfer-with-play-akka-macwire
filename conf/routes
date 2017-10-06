@@ -1,5 +1,5 @@
 
-POST        /account                           controllers.AccountsController.openAccount
+POST        /account                           controllers.AccountsController.openAccount()
 POST        /account/:id/deposit               controllers.AccountsController.depositMoney(id: Long)
 POST        /account/:id/transfer-money        controllers.AccountsController.transferMoney(id: Long)
 
