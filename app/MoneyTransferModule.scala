@@ -7,6 +7,6 @@ trait MoneyTransferModule {
 
   def controllerComponents: ControllerComponents
 
-  lazy val accountsController = wire[AccountsController]
+  lazy val accountsController: AccountsController = wire[AccountsController]
 
 }
