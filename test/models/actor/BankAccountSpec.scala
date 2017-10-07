@@ -13,7 +13,8 @@ class BankAccountSpec extends TestKit(ActorSystem("BankAccountSpec"))
 
   var bankAccountActor: Option[ActorRef] = None
 
-  import BankSupportedOperations._
+  import SupportedOperations._
+  import BankAccountSupportedOperations._
 
   "A Bank Account Actor" should {
     "open account" in {
@@ -39,7 +40,7 @@ class BankAccountSpec extends TestKit(ActorSystem("BankAccountSpec"))
 
     "load account details" in {
       withBankAccount { account =>
-        account ! GetDetails
+        account ! GetAccountDetails
         expectMsg(BankAccountDetails("acc", 150))
       }
     }
@@ -49,7 +50,7 @@ class BankAccountSpec extends TestKit(ActorSystem("BankAccountSpec"))
         account ! WithdrawMoney(200)
         expectMsg(Failure)
 
-        account ! GetDetails
+        account ! GetAccountDetails
         expectMsg(BankAccountDetails("acc", 150))
       }
     }

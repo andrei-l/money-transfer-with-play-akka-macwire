@@ -6,7 +6,8 @@ private[actor] class BankAccount extends Actor {
   private var name: Option[String] = None
   private var balance: BigDecimal = 0
 
-  import BankSupportedOperations._
+  import SupportedOperations._
+  import BankAccountSupportedOperations._
 
   override def receive: Receive = {
     case OpenAccount(accountName) => successfulOperation {
@@ -20,7 +21,7 @@ private[actor] class BankAccount extends Actor {
     case WithdrawMoney(amount) =>
       if (balance >= amount) successfulOperation(balance -= amount)
       else sender ! Failure
-    case GetDetails => sender ! BankAccountDetails(name.get, balance)
+    case GetAccountDetails => sender ! BankAccountDetails(name.get, balance)
   }
 
   private def successfulOperation(op: => Unit): Unit = {
