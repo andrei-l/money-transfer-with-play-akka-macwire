@@ -13,7 +13,7 @@ class BankAccountSpec extends TestKit(ActorSystem("BankAccountSpec"))
 
   var bankAccountActor: Option[ActorRef] = None
 
-  import BankAccount._
+  import BankSupportedOperations._
 
   "A Bank Account Actor" should {
     "open account" in {

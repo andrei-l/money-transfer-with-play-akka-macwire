@@ -2,23 +2,11 @@ package models.actor
 
 import akka.actor.Actor
 
-object BankAccount {
-  case class OpenAccount(accountName: String)
-  case class DepositMoney(amount: BigDecimal)
-  case class WithdrawMoney(amount: BigDecimal)
-  case object GetDetails
-
-  case object Success
-  case object Failure
-
-  case class BankAccountDetails(accountName: String, accountBalance: BigDecimal)
-}
-
 private[actor] class BankAccount extends Actor {
   private var name: Option[String] = None
   private var balance: BigDecimal = 0
 
-  import BankAccount._
+  import BankSupportedOperations._
 
   override def receive: Receive = {
     case OpenAccount(accountName) => successfulOperation {
