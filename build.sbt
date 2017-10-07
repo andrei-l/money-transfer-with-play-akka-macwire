@@ -9,6 +9,7 @@ lazy val cucumberJvm = "io.cucumber" % "cucumber-jvm" % CucumberVersion % Test
 lazy val cucumberJunit = "io.cucumber" % "cucumber-junit" % CucumberVersion % Test
 lazy val cucumberRunner = "com.waioeka.sbt" %% "cucumber-runner" % "0.1.3" % Test
 lazy val scalaTestPlay = "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+lazy val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % "2.5.4" % Test
 
 val cucumberFramework = new TestFramework("com.waioeka.sbt.runner.CucumberFramework")
 testFrameworks += cucumberFramework
@@ -19,7 +20,9 @@ name := "money-transfer-with-play-akka-wiremock"
 version := "1.0"
 scalaVersion := "2.12.3"
 
-libraryDependencies ++= Seq(macwire, scalaTest, cucumberCore, cucumberScala, cucumberJvm, cucumberRunner, scalaTestPlay)
+libraryDependencies ++= Seq(
+  macwire, scalaTest, cucumberCore, cucumberScala, cucumberJvm, cucumberRunner, scalaTestPlay, akkaTestKit
+)
 
 testOptions in Test += Tests.Argument(cucumberFramework, "--glue", "")
 testOptions in Test += Tests.Argument(cucumberFramework, "--plugin", "pretty")
