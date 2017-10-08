@@ -1,4 +1,4 @@
-# money-transfer-with-play-akka-wiremock
+# money-transfer-with-play-akka-macwire
 Small pet project for RESTful money transfer app built with Play, Akka and MacWire.
 
 ## App details
@@ -26,7 +26,7 @@ E.g. for windows:
 
 ```
 ├───bin
-	└───money-transfer-with-play-akka-wiremock.bat
+	└───money-transfer-with-play-akka-macwire.bat
 	└─── ...
 ├───conf
 	└─── ...
@@ -37,7 +37,7 @@ E.g. for windows:
         └───...
 ```
 
-Running money-transfer-with-play-akka-wiremock.bat will launch webserver on port 9000.
+Running money-transfer-with-play-akka-macwire.bat will launch webserver on port 9000.
 
 
 ### Testing
