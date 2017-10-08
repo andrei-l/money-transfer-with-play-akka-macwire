@@ -19,6 +19,9 @@ GET
  /account/:id                      
 ```
 
+#### Error Handling
+Proper error handling is not implemented, e.g. for scenarios when account does not exist but operation for specific account id is requested. 
+
 
 ### Distribution
 In order to build executables use: `sbt dist` - it will generate platform specific archive with application content. 
