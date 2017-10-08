@@ -1,10 +1,10 @@
 package models.actor
 
-import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
+import akka.actor.{Actor, ActorRef, ActorRefFactory}
 
 import scala.collection.mutable
 
-class Bank(bankAccountMaker: (ActorRefFactory, String) => ActorRef = (f, accountName) => f.actorOf(Props[BankAccount], accountName))
+class Bank(bankAccountMaker: (ActorRefFactory, String) => ActorRef)
   extends Actor {
 
   private var accountIdCounter = 0L

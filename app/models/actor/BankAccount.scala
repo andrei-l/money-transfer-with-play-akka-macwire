@@ -2,12 +2,12 @@ package models.actor
 
 import akka.actor.Actor
 
-private[actor] class BankAccount extends Actor {
+class BankAccount extends Actor {
   private var name: Option[String] = None
   private var balance: BigDecimal = 0
 
-  import SupportedOperations._
   import BankAccountSupportedOperations._
+  import SupportedOperations._
 
   override def receive: Receive = {
     case OpenAccount(accountName) => successfulOperation {

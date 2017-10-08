@@ -1,10 +1,12 @@
 package controllers
 
+import akka.actor.ActorRef
 import models.exchange._
 import play.api.libs.json.Json.toJson
-import play.api.mvc.{AbstractController, ControllerComponents, Results}
+import play.api.mvc.{AbstractController, ControllerComponents}
 
-class AccountsController(controllerComponents: ControllerComponents) extends AbstractController(controllerComponents) {
+class AccountsController(controllerComponents: ControllerComponents,
+                         bank: ActorRef) extends AbstractController(controllerComponents) {
 
   def openAccount() = Action(parse.json[OpenAccountRequest]) { request =>
     val openAccountRequest = request.body
