@@ -34,8 +34,8 @@ class Bank(bankAccountMaker: (ActorRefFactory, String) => ActorRef)
 
   private def openAccount(accountName: String) = {
     val replyTo = sender()
-    val newAccount = bankAccountMaker(context, accountName)
     val accountId = nextAccountId()
+    val newAccount = bankAccountMaker(context, s"$accountName-$accountId")
     accounts += accountId -> newAccount
     (newAccount ? OpenAccount(accountName)) onComplete {
       case Success(Ok) => replyTo ! AccountCreated(accountId)
