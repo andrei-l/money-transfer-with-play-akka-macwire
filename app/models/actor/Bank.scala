@@ -17,50 +17,70 @@ class Bank(bankAccountMaker: (ActorRefFactory, String) => ActorRef = (f, account
   import SupportedOperations._
 
   override def receive: Receive = {
-    case msg@OpenAccount(accountName) =>
-      val newAccount = bankAccountMaker(context, accountName)
-      val accountId = nextAccountId()
-      accounts += accountId -> newAccount
-      awaitingOperationsFromWithPostOpOnSuccess(newAccount) += successAwaitingOperation(accountId, sender)
-      newAccount ! msg
+    case OpenAccount(accountName) => openAccount(accountName)
+    case TransferMoney(fromId, toId, amount) => transferMoney(fromId, toId, amount)
+    case GetAccountDetails(accountId) => getAccountDetails(accountId)
+    case DepositMoney(accountId, amount) => depositMoney(accountId, amount)
+    case WithdrawMoney(accountId, amount) => withdrawMoney(accountId, amount)
 
-    case TransferMoney(fromId, toId, amount) =>
-      val fromAccount = accounts(fromId)
-      val toAccount = accounts(toId)
-      val replyTo = sender
-      fromAccount ! BankAccountSupportedOperations.WithdrawMoney(amount)
-      awaitingOperationsFromWithPostOpOnSuccess(fromAccount) += new SuccessAwaitingOperation({
-        toAccount ! BankAccountSupportedOperations.DepositMoney(amount)
-        awaitingOperationsFromWithPostOpOnSuccess(toAccount) += successAwaitingOperation(fromId, replyTo)
-      }, fromId, replyTo)
-
-    case GetAccountDetails(accountId) =>
-      val account = accounts(accountId)
-      account ! BankAccountSupportedOperations.GetAccountDetails
-      awaitingOperationsFromWithPostOpOnSuccess(account) += new SuccessAwaitingOperation({}, accountId, sender)
-
-    case DepositMoney(accountId, amount) =>
-      val account = accounts(accountId)
-      account ! BankAccountSupportedOperations.DepositMoney(amount)
-      awaitingOperationsFromWithPostOpOnSuccess(account) += successAwaitingOperation(accountId, sender)
-
-    case WithdrawMoney(accountId, amount) =>
-      val account = accounts(accountId)
-      account ! BankAccountSupportedOperations.WithdrawMoney(amount)
-      awaitingOperationsFromWithPostOpOnSuccess(account) += successAwaitingOperation(accountId, sender)
-
-    case BankAccountSupportedOperations.Success => awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue().execute()
-
-    case BankAccountSupportedOperations.Failure =>
-      val awaitingOperation = awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue()
-      awaitingOperation.originalSender ! Failure(awaitingOperation.accountId)
-
+    case BankAccountSupportedOperations.Success => receivedSucceededOperation()
+    case BankAccountSupportedOperations.Failure => receivedFailedOperation()
     case BankAccountSupportedOperations.BankAccountDetails(accountName, accountBalance) =>
-      val awaitingOperation = awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue()
-      awaitingOperation.originalSender ! BankSupportedOperations.BankAccountDetails(awaitingOperation.accountId, accountName, accountBalance)
+      receivedBankAccountDetails(accountName, accountBalance)
   }
 
-  private def successAwaitingOperation(accountId: Long, replyTo: ActorRef) =
+  private def openAccount(accountName: String) = {
+    val newAccount = bankAccountMaker(context, accountName)
+    val accountId = nextAccountId()
+    accounts += accountId -> newAccount
+    awaitingOperationsFromWithPostOpOnSuccess(newAccount) += newSuccessAwaitingOperation(accountId, sender)
+    newAccount ! OpenAccount(accountName)
+  }
+
+  private def transferMoney(fromId: Long, toId: Long, amount: BigDecimal) = {
+    val fromAccount = accounts(fromId)
+    val toAccount = accounts(toId)
+    val replyTo = sender
+    fromAccount ! BankAccountSupportedOperations.WithdrawMoney(amount)
+    awaitingOperationsFromWithPostOpOnSuccess(fromAccount) += new SuccessAwaitingOperation({
+      toAccount ! BankAccountSupportedOperations.DepositMoney(amount)
+      awaitingOperationsFromWithPostOpOnSuccess(toAccount) += newSuccessAwaitingOperation(fromId, replyTo)
+    }, fromId, replyTo)
+  }
+
+  private def getAccountDetails(accountId: Long) = {
+    val account = accounts(accountId)
+    account ! BankAccountSupportedOperations.GetAccountDetails
+    awaitingOperationsFromWithPostOpOnSuccess(account) += new SuccessAwaitingOperation({}, accountId, sender)
+  }
+
+  private def depositMoney(accountId: Long, amount: BigDecimal) = {
+    val account = accounts(accountId)
+    account ! BankAccountSupportedOperations.DepositMoney(amount)
+    awaitingOperationsFromWithPostOpOnSuccess(account) += newSuccessAwaitingOperation(accountId, sender)
+  }
+
+  private def withdrawMoney(accountId: Long, amount: BigDecimal) = {
+    val account = accounts(accountId)
+    account ! BankAccountSupportedOperations.WithdrawMoney(amount)
+    awaitingOperationsFromWithPostOpOnSuccess(account) += newSuccessAwaitingOperation(accountId, sender)
+  }
+
+  private def receivedSucceededOperation() = {
+    awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue().execute()
+  }
+
+  private def receivedFailedOperation() = {
+    val awaitingOperation = awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue()
+    awaitingOperation.originalSender ! Failure(awaitingOperation.accountId)
+  }
+
+  private def receivedBankAccountDetails(accountName: String, accountBalance: BigDecimal) = {
+    val awaitingOperation = awaitingOperationsFromWithPostOpOnSuccess(sender).dequeue()
+    awaitingOperation.originalSender ! BankSupportedOperations.BankAccountDetails(awaitingOperation.accountId, accountName, accountBalance)
+  }
+
+  private def newSuccessAwaitingOperation(accountId: Long, replyTo: ActorRef) =
     new SuccessAwaitingOperation(replyTo ! Success(accountId), accountId, replyTo)
 
   private def nextAccountId() = {
