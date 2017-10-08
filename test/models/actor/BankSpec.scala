@@ -17,8 +17,10 @@ class BankSpec extends TestKit(ActorSystem("BankSpec"))
   private var accountId1: Long = _
   private var accountId2: Long = _
 
-  import models.actor.BankSupportedOperations._
   import models.actor.SupportedOperations._
+  import models.actor.SupportedOperations.SupportedResponses._
+  import models.actor.BankSupportedOperations._
+  import models.actor.BankSupportedOperations.SupportedResponses._
 
   "A Bank Actor" should {
     "open multiple accounts" in {
@@ -48,43 +50,43 @@ class BankSpec extends TestKit(ActorSystem("BankSpec"))
   private def openAccount(accountName: String): Long = {
     bankActor ! OpenAccount(accountName)
     accountProb.expectMsg(OpenAccount(accountName))
-    accountProb.reply(BankAccountSupportedOperations.Success)
+    accountProb.reply(Ok)
 
-    expectMsgClass(classOf[BankSupportedOperations.Success]).accountId
+    expectMsgClass(classOf[AccountCreated]).accountId
   }
 
   private def depositMoney(accountId: Long, amount: BigDecimal) = {
     bankActor ! DepositMoney(accountId, amount)
     accountProb.expectMsg(BankAccountSupportedOperations.DepositMoney(amount))
-    accountProb.reply(BankAccountSupportedOperations.Success)
+    accountProb.reply(Ok)
 
-    expectMsg(Success(accountId))
+    expectMsg(Ok)
   }
 
   private def transferMoney(fromId: Long, toId: Long, amount: BigDecimal) = {
     bankActor ! TransferMoney(fromId, toId, amount)
     accountProb.expectMsg(BankAccountSupportedOperations.WithdrawMoney(amount))
-    accountProb.reply(BankAccountSupportedOperations.Success)
+    accountProb.reply(Ok)
     accountProb.expectMsg(BankAccountSupportedOperations.DepositMoney(amount))
-    accountProb.reply(BankAccountSupportedOperations.Success)
+    accountProb.reply(Ok)
 
-    expectMsg(Success(fromId))
+    expectMsg(Ok)
   }
 
   private def withdrawMoney(accountId: Long, amount: BigDecimal) = {
     bankActor ! WithdrawMoney(accountId, amount)
     accountProb.expectMsg(BankAccountSupportedOperations.WithdrawMoney(amount))
-    accountProb.reply(BankAccountSupportedOperations.Success)
+    accountProb.reply(Ok)
 
-    expectMsg(Success(accountId))
+    expectMsg(Ok)
   }
 
   private def getAccountDetails(accountId: Long) = {
     bankActor ! GetAccountDetails(accountId)
     accountProb.expectMsg(BankAccountSupportedOperations.GetAccountDetails)
-    accountProb.reply(BankAccountSupportedOperations.BankAccountDetails("bank-acc", 30))
+    accountProb.reply(BankAccountDetails("bank-acc", 30))
 
-    expectMsg(BankAccountDetails(accountId, "bank-acc", 30))
+    expectMsg(BankAccountDetails("bank-acc", 30))
   }
 
   override def afterAll {
