@@ -1,6 +1,10 @@
 # money-transfer-with-play-akka-wiremock
-Small pet project for RESTful money transfer app built with Play, Akka and Wiremock
+Small pet project for RESTful money transfer app built with Play, Akka and MacWire.
 
+## App details
+API is built with Play Framework
+Domain logic is built with Akka actors framework (Bank and BankAccount)
+Akka and Play are linked together with MacWire DI framework.
 
 ### API
 
